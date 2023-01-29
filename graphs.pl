@@ -9,7 +9,7 @@
 
 /*NON-WEIGHTED NON-DIRECTIONAL ACYCLIC*/
 
-connects(1,2).
+/*connects(1,2).
 connects(2,1).
 
 connects(1,4).
@@ -25,14 +25,11 @@ connects(2,6).
 connects(6,2).
 
 connects(2,7).
-connects(7,2).
-
-connects(4,8).
-connects(8,4).
+connects(7,2).*/
 
 /*NON-WEIGHTED NON-DIRECTIONAL*/
 
-/*connects(1,2).
+connects(1,2).
 connects(2,1).
 
 connects(1,4).
@@ -69,9 +66,9 @@ connects(5,8).
 connects(8,5).
 
 connects(7,8).
-connects(8,7).*/
+connects(8,7).
 
-/*----------------------COMMON FUNCTIONS-------------*/
+/*-------------------COMMON FUNCTIONS----------------*/
 
 next_node(CurrentNode,Visited,NextNode) :-
 	connects(CurrentNode,NextNode),
@@ -79,35 +76,25 @@ next_node(CurrentNode,Visited,NextNode) :-
 
 /*---------------------------------------------------*/
 
-adj([],_,[]).
-adj([N|Ns],Visited,Res) :- 
-	adj(N,Visited,PRes), 
-	adj(Ns,Visited,RRes), 
-	append(PRes,RRes,Res), !.
+last_element([X|[]],X) :- !.
+last_element([_|RestList],Result) :-
+	last_element(RestList,Result).
+
 adj(N,Visited,Res) :- 
-	findall(X,(connects(N,X),not(member(X,Visited))),Res).
+	last_element(N,E),
+	findall(X,(connects(E,X),not(member(X,Visited))),Res).
 
 create_branches(_,[],[]).
-create_branches(Branch,[X|Xs],Branches) :- 
-	append(Branch,[X],PBranch),
-	create_branches(Branch,Xs,RBranches),
-	append([PBranch],RBranches,Branches),!.
-
-check([Branch|RBranches],Target,Path) :-
-	(
-		is_list(Branch),
-		(	
-			(member(Target,Branch),
-			append([],[Branch],Path));
-			check(RBranches,Target,Path)
-		)
-	);
-	(	
-		member(Target,[Branch|RBranches]),
-		append([],[Branch|RBranches],Path)
-	).
+create_branches([F|RBranch],[X|Xs],Branches) :- 
+	append([F|RBranch],[X],PBranch),
+	create_branches([F|RBranch],Xs,RBranches),
+	append([PBranch],RBranches,Branches).
 
 pop([_|Result],Result).	
+
+update_queue(Queue,Branches,NewQueue) :-
+	append(Queue,Branches,FullQueue),
+	pop(FullQueue,NewQueue).
 	
 /*----------------------DFS--------------------------*/
 /* Given:                                            */
@@ -117,13 +104,14 @@ pop([_|Result],Result).
 /*	the target node 			     */
 /*---------------------------------------------------*/
 
-dfs(Start,Target,Path) :- dfs(Start,Target,[Start],Path).
+dfs(Start,Target,Path) :- 
+	dfs(Start,Target,[Start],Path),!.
 
 dfs(Target,Target,_,[Target]).
 
 dfs(Start,Target,Visited,[Start|RestPath]) :-
 	next_node(Start,Visited,Next),
-	dfs(Next,Target,[Next|Visited],RestPath),!.
+	dfs(Next,Target,[Next|Visited],RestPath).
 
 /*----------------------BFS--------------------------*/
 /* Given:                                            */
@@ -133,16 +121,19 @@ dfs(Start,Target,Visited,[Start|RestPath]) :-
 /*	the target node                              */
 /*---------------------------------------------------*/
 
+bfs(Start,Target,Path) :- 
+	bfs([Start],Target,[Start],[Start],Path),!.
 
-bfs(Start,Target,Path) :- bfs([Start],Target,Start,[Start],Path).
+bfs(Branch,Target,_,_,Path) :- 
+	last_element(Branch,Target),
+	Path=Branch.
 
-
-bfs(Start,Target,Visited,Queue,Path) :-
-	check(Start,Target,Path),!;
-	adj(Start,Visited,Adj),
-	create_branches(Start,Adj,Branches),
-	append(Queue,Branches,FullQueue),pop(FullQueue,NewQueue),NewQueue=[F|_],
-	bfs(F,Target,[Visited|Adj],NewQueue,Path).
+bfs(Branch,Target,Visited,Queue,Path) :-
+	adj(Branch,Visited,Adj),
+	create_branches(Branch,Adj,Branches),
+	update_queue(Queue,Branches,[F|RestQueue]),
+	append(Visited,Adj,NewVisited),
+	bfs(F,Target,NewVisited,[F|RestQueue],Path).
 	
 	
 	
