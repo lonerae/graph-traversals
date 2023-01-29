@@ -71,6 +71,7 @@ connects(8,7).
 /*-------------------COMMON FUNCTIONS----------------*/
 
 next_node(CurrentNode,Visited,NextNode) :-
+	write(Visited),nl,
 	connects(CurrentNode,NextNode),
 	not(member(NextNode,Visited)).
 
@@ -85,9 +86,9 @@ adj(N,Visited,Res) :-
 	findall(X,(connects(E,X),not(member(X,Visited))),Res).
 
 create_branches(_,[],[]).
-create_branches([F|RBranch],[X|Xs],Branches) :- 
-	append([F|RBranch],[X],PBranch),
-	create_branches([F|RBranch],Xs,RBranches),
+create_branches(Branch,[X|Xs],Branches) :- 
+	append(Branch,[X],PBranch),
+	create_branches(Branch,Xs,RBranches),
 	append([PBranch],RBranches,Branches).
 
 pop([_|Result],Result).	
@@ -105,13 +106,15 @@ update_queue(Queue,Branches,NewQueue) :-
 /*---------------------------------------------------*/
 
 dfs(Start,Target,Path) :- 
-	dfs(Start,Target,[Start],Path),!.
+	dfs(Start,Target,[Start],Path),
+	!.
 
 dfs(Target,Target,_,[Target]).
 
 dfs(Start,Target,Visited,[Start|RestPath]) :-
 	next_node(Start,Visited,Next),
-	dfs(Next,Target,[Next|Visited],RestPath).
+	append(Visited,[Next],NewVisited),
+	dfs(Next,Target,NewVisited,RestPath).
 
 /*----------------------BFS--------------------------*/
 /* Given:                                            */
@@ -122,13 +125,16 @@ dfs(Start,Target,Visited,[Start|RestPath]) :-
 /*---------------------------------------------------*/
 
 bfs(Start,Target,Path) :- 
-	bfs([Start],Target,[Start],[Start],Path),!.
+	bfs([Start],Target,[Start],[Start],Path),
+	!.
 
 bfs(Branch,Target,_,_,Path) :- 
 	last_element(Branch,Target),
+	write(Branch),nl,
 	Path=Branch.
 
 bfs(Branch,Target,Visited,Queue,Path) :-
+	write(Branch),nl,
 	adj(Branch,Visited,Adj),
 	create_branches(Branch,Adj,Branches),
 	update_queue(Queue,Branches,[F|RestQueue]),
