@@ -7,7 +7,7 @@
 
 /*----------------------GRAPH------------------------*/
 
-/*NON-WEIGHTED NON-DIRECTIONAL ACYCLIC*/
+/*NON-WEIGHTED NON-DIRECTED ACYCLIC*/
 
 /*connects(1,2).
 connects(2,1).
@@ -27,9 +27,9 @@ connects(6,2).
 connects(2,7).
 connects(7,2).*/
 
-/*NON-WEIGHTED NON-DIRECTIONAL*/
+/*NON-WEIGHTED NON-DIRECTED*/
 
-connects(1,2).
+/*connects(1,2).
 connects(2,1).
 
 connects(1,4).
@@ -66,7 +66,24 @@ connects(5,8).
 connects(8,5).
 
 connects(7,8).
-connects(8,7).
+connects(8,7).*/
+
+/*NON-WEIGHTED*/
+
+connects(1,2).
+connects(1,6).
+
+connects(2,3).
+connects(2,5).
+
+connects(3,4).
+
+connects(4,1).
+connects(4,2).
+
+connects(5,4).
+
+connects(6,5).
 
 /*-------------------COMMON FUNCTIONS----------------*/
 
@@ -130,7 +147,6 @@ bfs(Start,Target,Path) :-
 
 bfs(Branch,Target,_,_,Path) :- 
 	last_element(Branch,Target),
-	write(Branch),nl,
 	Path=Branch.
 
 bfs(Branch,Target,Visited,Queue,Path) :-
