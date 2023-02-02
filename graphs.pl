@@ -68,9 +68,50 @@ connects(8,5).
 connects(7,8).
 connects(8,7).*/
 
+/*WEIGHTED NON-DIRECTED*/
+
+connects(1,2,2).
+connects(2,1,2).
+
+connects(1,4,3).
+connects(4,1,3).
+
+connects(2,3,1).
+connects(3,2,1).
+
+connects(2,5,5).
+connects(5,2,5).
+
+connects(2,7,2).
+connects(7,2,2).
+
+connects(2,8,1).
+connects(8,2,1).
+
+connects(3,4,1).
+connects(4,3,1).
+
+connects(3,9,1).
+connects(9,3,1).
+
+connects(3,10,3).
+connects(10,3,3).
+
+connects(5,6,2).
+connects(6,5,2).
+
+connects(5,7,1).
+connects(7,5,1).
+
+connects(5,8,1).
+connects(8,5,1).
+
+connects(7,8,2).
+connects(8,7,2).
+
 /*NON-WEIGHTED*/
 
-connects(1,2).
+/*connects(1,2).
 connects(1,6).
 
 connects(2,3).
@@ -83,7 +124,7 @@ connects(4,2).
 
 connects(5,4).
 
-connects(6,5).
+connects(6,5).*/
 
 /*-------------------COMMON FUNCTIONS----------------*/
 
@@ -115,6 +156,8 @@ update_queue(Queue,Branches,NewQueue) :-
 	pop(FullQueue,NewQueue).
 	
 /*----------------------DFS--------------------------*/
+/* Supposes:					     */
+/*	non-weighted graph			     */
 /* Given:                                            */
 /*	starting node, target node                   */
 /* Returns:                                          */
@@ -134,6 +177,8 @@ dfs(Start,Target,Visited,[Start|RestPath]) :-
 	dfs(Next,Target,NewVisited,RestPath).
 
 /*----------------------BFS--------------------------*/
+/* Supposes:					     */
+/*	non-weighted graph			     */
 /* Given:                                            */
 /*	starting node, target node                   */
 /* Returns:                                          */
@@ -157,6 +202,28 @@ bfs(Branch,Target,Visited,Queue,Path) :-
 	append(Visited,Adj,NewVisited),
 	bfs(F,Target,NewVisited,[F|RestQueue],Path).
 	
+/*--------------DJIKSTRA'S ALGORITHM-----------------*/
+/* Supposes:					     */
+/*	weighted graph				     */
+/* Given:                                            */
+/*	starting node, target node                   */
+/* Returns:                                          */
+/* 	the lightest path from the starting to       */
+/*	the target node                              */
+/*---------------------------------------------------*/	
+	
+unvisited(List) :- 
+	findall(V,connects(V,_,_),TList),
+	distinct(TList,List).
+
+distinct([E],[E]).
+distinct([H|T],Set) :-
+	distinct(T,RSet),
+	(
+		not(member(H,RSet)),
+		Set=[H|RSet];
+		Set=RSet
+	),!.
 	
 	
 	
