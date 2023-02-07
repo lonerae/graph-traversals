@@ -224,9 +224,36 @@ distinct([H|T],Set) :-
 		Set=[H|RSet];
 		Set=RSet
 	),!.
+
+deleteFromList(E,[E|RL],RL).
+deleteFromList(E,[X|RL],UL) :-
+	append(RL,[X],NL),
+	deleteFromList(E,NL,UL).
+
+filter(Array,[],Array).
+filter(Array,[H|Rejects],Result) :-
+	deleteFromList((H,_,_),Array,PResult),
+	filter(PResult,Rejects,Result),!.
+
+minimumDistance([(N,D,P)],(N,D,P)).
+minimumDistance([(HN,HD,HP)|T],(RN,RD,RP)) :-
+	minimumDistance(T,(TN,TD,TP)),
+	(
+		HD < TD, RN is HN, RD is HD, RP is HP;
+		RN is TN, RD is TD, RP is TP
+	),!.
+
+dij(Start,Target,Path) :-
+	dij(Start,Target,[Start],[(Start,0,Start)],Path),!.
 	
-	
-	
+dij(Node,Target,Visited,Array,Path) :-
+	findall((X,Distance,Node),connects(Node,X,Distance),L),
+	append(Array,L,NewArray), filter(NewArray,Visited,Candidates),
+	write(NewArray),nl,
+	minimumDistance(Candidates,(N,D,P)),
+	dij(N,Target,[N|Visited],NewArray,Path).
+
+
 	
 	
 	
